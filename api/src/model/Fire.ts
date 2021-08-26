@@ -4,7 +4,7 @@ export interface Fire {
   coords: LatLng,
 
   /** How far to simulate, in hours. */
-  simulateTime: number
+  simulationTime: number
 }
 
 export const isFire = (target: unknown): target is Fire => {
@@ -22,6 +22,6 @@ export const isFire = (target: unknown): target is Fire => {
 
   return entries[0][0] === 'coords'
     && isLatLng(entries[0][1])
-    && entries[1][0] === 'simulateTime'
+    && entries[1][0] === 'simulationTime'
     && typeof entries[1][1] === 'number'
 }

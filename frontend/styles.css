@@ -4,3 +4,22 @@ html, body, #map {
   margin: 0;
   padding: 0;
 }
+
+h1 {
+  margin: 0;
+  font-weight: normal;
+}
+
+.fire-form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.fire-form.fire-form > p {
+  margin: 0
+}
+
+.fire-form > input {
+  display: block;
+}

@@ -16,8 +16,6 @@ wss.on('connection', (socket) => {
       return console.error(err);
     }
 
-    console.log(data);
-
     if (isFire(data)) {
       registerFire(data);
     }
