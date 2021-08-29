@@ -4,7 +4,7 @@ import { basemapLayer } from 'esri-leaflet';
 const MAP_EL = document.querySelector('#map') as HTMLElement;
 
 export function initMap() {
-  const map = L.map(MAP_EL).setView([31.76245, 35.06116], 11);
+  const map = L.map(MAP_EL, { preferCanvas: true }).setView([31.76245, 35.06116], 11);
 
   basemapLayer('Gray').addTo(map);
   basemapLayer('GrayLabels').addTo(map);

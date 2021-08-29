@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/githubnemo/CompileDaemon v1.3.0 // indirect
-	github.com/go-redis/redis/v8 v8.11.3 // indirect
+	github.com/go-redis/redis/v8 v8.11.3
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/radovskyb/watcher v1.0.7 // indirect

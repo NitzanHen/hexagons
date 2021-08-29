@@ -58,7 +58,7 @@ const submitFire = (e: Event & { target: HTMLFormElement }, point: Point) => {
   send(fire);
 }
 
-const { sin, cos, sqrt, PI } = Math;
+const { abs, sin, cos, sqrt, PI } = Math;
 
 function polarOffset(point: Point, r: number, theta: number) {
   const { lat, lng } = point;
@@ -66,24 +66,85 @@ function polarOffset(point: Point, r: number, theta: number) {
   return { lat: lat + r * sin(theta), lng: lng + r * cos(theta) };
 }
 
-function createHexagon(point: Point, r: number) {
+function createHexagon(center: Point, r: number) {
   // r = distanceToVertex * cos(PI / 6), cos(PI/6) = sqrt(3)/2, therefore:
   const distanceToVertex = r * (2 / sqrt(3));
 
-  return [...Array(6).keys()].map(n => polarOffset(point, distanceToVertex, n * PI / 3))
+  return [...Array(6).keys()].map(n => polarOffset(center, distanceToVertex, n * PI / 3))
 }
 
-const somePoint = { lat: random(31.6, 31.9), lng: random(34.8, 35.2) };
-const dist = 0.005;
+const origin = { lat: random(31.6, 31.9), lng: random(34.8, 35.2) };
 
-function centerAt(dx: number, dy: number, dz: number) {
+const R = 0.002;
 
+const th1 = 0 + PI / 6;
+const th2 = PI / 3 + PI / 6;
+const th3 = 2 * PI / 3 + PI / 6;
+
+function centerAt(x: number, y: number, z: number) {
+  return {
+    lng: origin.lng + x * R * cos(th1) + y * R * cos(th2) + z * R * cos(th3),
+    lat: origin.lat + x * R * sin(th1) + y * R * sin(th2) + z * R * sin(th3)
+  };
 }
 
-L.polygon(createHexagon(somePoint, dist / 2), { color: 'red' }).addTo(map);
-[...Array(6).keys()].forEach(n => {
-  const nextPoint = polarOffset(somePoint, dist, PI / 6 + n * PI / 3);
-  L.polygon(createHexagon(nextPoint, dist / 2), { color: 'blue' }).addTo(map);
-})
+// x - y = z
+// x, y, z <-> x - z, y + z, 0
+// x, y, 0 <-> x + z, y - z, z, z real
+// particularily x, y, 0 <-> x + y, 0, y
+
+/**
+ * Generates all `d`-tuples of integers whose elements' absolute values sum up to `s`.
+ */
+function* integerSums(s: number, d: number): Generator<[...number[]]> {
+  if (d === 1) {
+    yield [s];
+    if (s !== 0) {
+      yield [-s];
+    }
+    return
+  }
+
+  for (let i = -s; i <= s; i++) {
+    for (const tailSum of integerSums(s - abs(i), d - 1)) {
+      yield [i, ...tailSum]
+    }
+  }
+}
+
+function* generateHexagons(maxR: number): Generator<[...Point[]]> {
+  yield createHexagon(centerAt(0, 0, 0), R / 2);
+
+  for (let r = 1; r <= maxR; r++) {
+    console.log(r)
+    for (const [x, y, z] of integerSums(r, 3)) {
+      yield createHexagon(centerAt(x, y, z), R / 2)
+    }
+  }
+}
+
+let i = 0;
+for (const hexagon of generateHexagons(3)) {
+  const color = ['#F08700 ', '#EFCA08', '#F49F0A', 'blue', '#00A6A6', '#BBDEF0', '#B744B8', '#EF476F'][i % 8];
+  L.polygon(hexagon, { color }).addTo(map);
+  i++;
+}
+
+// for (let x = -10; x < 10; x++) {
+//   for (let y = -10; y < 10; y++) {
+//     for (let z = -10; z < 10; z++) {
+//       const color = (() => {
+//         if (x === 0 && y === 0 && z === 0) {
+//           return 'black'
+//         }
+//         return ['#F08700 ', '#EFCA08', '#F49F0A', 'blue', '#00A6A6', '#BBDEF0', '#B744B8', '#EF476F'][abs(x + y + z) % 8]
+//       })();
+//       // L.polygon(createHexagon(centerAt(x, y, z), R / 2), { color }).addTo(map);
+//     }
+//   }
+// }
+// L.polygon(createHexagon(centerAt(0, 0, 0), R / 2), { color: 'black' }).addTo(map);
+// L.polygon(createHexagon(centerAt(2, 5, 0), R / 2), { color: 'red' }).addTo(map);
+// L.polygon(createHexagon(centerAt(7, 0, 5), R / 2), { color: 'blue' }).addTo(map);
 
 
