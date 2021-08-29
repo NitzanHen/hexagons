@@ -112,20 +112,36 @@ function* integerSums(s: number, d: number): Generator<[...number[]]> {
   }
 }
 
-function* generateHexagons(maxR: number): Generator<[...Point[]]> {
-  yield createHexagon(centerAt(0, 0, 0), R / 2);
+function* generateHexagonRing(r: number): Generator<[...Point[]]> {
+  if(r === 0) {
+    yield createHexagon(origin, R / 2);
+    return;
+  }
 
-  for (let r = 1; r <= maxR; r++) {
+  for (let i = 0; i < 6; i++) {
+    const vertexAngle = (i * PI / 3) + PI / 6;
+    const vertex = polarOffset(origin, r * R, vertexAngle)
+    for (let j = 0; j < r; j++) {
+      const center = polarOffset(vertex, j * R, vertexAngle + 2 * PI / 3)
+      console.log(center)
+      yield createHexagon(center, R / 2)
+    }
+  }
+
+}
+
+function* generateHexagons(maxR: number): Generator<[...Point[]]> {
+  for (let r = 0; r <= maxR; r++) {
     console.log(r)
-    for (const [x, y, z] of integerSums(r, 3)) {
-      yield createHexagon(centerAt(x, y, z), R / 2)
+    for (const hexagon of generateHexagonRing(r)) {
+      yield hexagon;
     }
   }
 }
 
 let i = 0;
-for (const hexagon of generateHexagons(3)) {
-  const color = ['#F08700 ', '#EFCA08', '#F49F0A', 'blue', '#00A6A6', '#BBDEF0', '#B744B8', '#EF476F'][i % 8];
+for (const hexagon of generateHexagons(10)) {
+  const color = `rgb(${255 / 330 * i}, 0, ${255 / 330 * i})`;
   L.polygon(hexagon, { color }).addTo(map);
   i++;
 }
